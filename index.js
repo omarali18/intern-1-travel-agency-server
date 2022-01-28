@@ -20,7 +20,7 @@ async function run() {
         console.log("Database connected is");
         const database = client.db("internTourist");
         const experiencesCollection = database.collection("experiences");
-        // const usersCollection = database.collection("users")
+        const usersCollection = database.collection("users")
         // const doctorCollection = database.collection("doctors")
 
         // get all experiences
@@ -46,6 +46,48 @@ async function run() {
             const result = await experiencesCollection.findOne(query);
             res.json(result)
         });
+
+        // user save in database
+        app.post("/users", async (req, res) => {
+            const user = req.body
+            const result = await usersCollection.insertOne(user)
+            console.log(result);
+            res.json(result)
+
+        })
+
+        app.put("/users", async (req, res) => {
+            const user = req.body
+            const query = { email: user.email }
+            const options = { upsert: true };
+            const updateDoc = { $set: user }
+            const result = await usersCollection.updateOne(query, updateDoc, options)
+            console.log(result);
+            res.json(result)
+
+        });
+
+        // make addmin 
+        app.put("/users/admin", async (req, res) => {
+            const user = req.body
+            const filter = { email: user.email }
+            const updateDoc = { $set: { role: "admin" } }
+            const result = await usersCollection.updateOne(filter, updateDoc)
+            res.json(result)
+        })
+
+        // check admin user
+        app.get("/users/:email", async (req, res) => {
+            const email = req.params.email
+            const filter = { email: email }
+            const user = await usersCollection.findOne(filter)
+            // console.log(result);
+            let isAdmin = false
+            if (user?.role === "admin") {
+                isAdmin = true
+            }
+            res.json({ admin: isAdmin })
+        })
 
         // app.get("/appointments", async (req, res) => {
         //     const email = req.query?.email;

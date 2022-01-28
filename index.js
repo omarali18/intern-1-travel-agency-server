@@ -40,12 +40,22 @@ async function run() {
             
             res.json({count,experiences})
         })
+        
+        // get one experiences
         app.get("/experiences/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await experiencesCollection.findOne(query);
             res.json(result)
         });
+
+        //post one experiences
+        app.post("/experiences", async (req, res) => {
+            const newProduct = req.body
+            const result = await allCarsCollection.insertOne(newProduct)
+            console.log(result);
+            res.json(result)
+        })
 
         // user save in database
         app.post("/users", async (req, res) => {

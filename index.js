@@ -26,9 +26,26 @@ async function run() {
         // get all experiences
         app.get("/experiences", async (req, res) => {
             const cursur = experiencesCollection.find({});
-            const experiences = await cursur.toArray();
-            res.json(experiences)
+            const count = await cursur.count()
+            const page = req.query.page
+            const size = parseInt(req.query.size)
+            let experiences
+
+            if(page){
+                experiences = await cursur.skip(page*size).limit(size).toArray()
+            }
+            else{
+                experiences = await cursur.toArray();
+            }
+            
+            res.json({count,experiences})
         })
+        app.get("/experiences/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await experiencesCollection.findOne(query);
+            res.json(result)
+        });
 
         // app.get("/appointments", async (req, res) => {
         //     const email = req.query?.email;
@@ -46,6 +63,7 @@ async function run() {
         //     res.json(result)
         // });
 
+                ////// this is complit///////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\
         // app.get("/appointments/:id", async (req, res) => {
         //     const id = req.params.id;
         //     const query = { _id: ObjectId(id) };
@@ -64,6 +82,8 @@ async function run() {
 
         //save doctor
 
+
+                ////// this is complit///////////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\
         // app.get("/doctors", async (req, res) => {
         //     const cursur = doctorCollection.find({});
         //     const doctors = await cursur.toArray();
